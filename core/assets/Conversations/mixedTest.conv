@@ -1,0 +1,11 @@
+<conversation xmlns="urn:Test.Namespace">
+    <branch name="default">
+        <message speaker="test">
+            test <text>hi</text> world
+            this is a test
+            to see how it goes
+            with <text>yeah</text> doing
+            this and stuff
+        </message>
+    </branch>
+</conversation>
