@@ -16,19 +16,19 @@ import static com.badlogic.gdx.utils.XmlReader.Element;
  */
 public class ResourceSchemaGenerator {
     private static final String ANIMATIONS_DIRECTORY = "Animations";
-    private static final String BACKGROUNDS_DIRECTORY = "Backgrounds";
+    private static final String TEXTURES_DIRECTORY = "Textures";
     private static final String MUSIC_DIRECTORY = "Music";
     private static final String SOUNDS_DIRECTORY = "Sounds";
 
     private static final String ANIMATIONS_TAG = "animation_files";
-    private static final String BACKGROUNDS_TAG = "backgrounds";
+    private static final String TEXTURES_TAG = "textures";
     private static final String MUSIC_TAG = "music";
     private static final String SOUNDS_TAG = "sounds";
     private static final String CHARACTERS_TAG = "characters";
 
     private static final String ANIMATION_ATLAS_TYPE = "animationAtlasResource";
     private static final String ANIMATIONS_TYPE = "animationResource";
-    private static final String BACKGROUNDS_TYPE = "backgroundResource";
+    private static final String TEXTURES_TYPE = "textureResource";
     private static final String MUSIC_TYPE = "musicResource";
     private static final String SOUNDS_TYPE = "soundResource";
     private static final String CHARACTER_TYPE = "characterType";
@@ -59,7 +59,7 @@ public class ResourceSchemaGenerator {
             writeHeader();
             writeAny();
             writeAnimations(root);
-            writeBackgrounds(root);
+            writeTextures(root);
             writeMusic(root);
             writeSounds(root);
             writeCharacters(root);
@@ -132,10 +132,10 @@ public class ResourceSchemaGenerator {
         writeIdentifiers(ANIMATIONS_TYPE, animationNames);
     }
 
-    private static void writeBackgrounds(Element root) {
-        Map<String, String> resources = getResources(root, BACKGROUNDS_TAG);
-        writeIdentifiers(BACKGROUNDS_TYPE, resources.keySet());
-        verifyResources(resources, BACKGROUNDS_DIRECTORY);
+    private static void writeTextures(Element root) {
+        Map<String, String> resources = getResources(root, TEXTURES_TAG);
+        writeIdentifiers(TEXTURES_TYPE, resources.keySet());
+        verifyResources(resources, TEXTURES_DIRECTORY);
         System.out.println("Wrote backgrounds.");
     }
 

@@ -58,11 +58,9 @@ nb-configuration.xml
 
 .gradle
 gradle-app.setting
-build/
 
 ## OS Specific
 .DS_Store
-/core/src/META-INF/
 /core/build/
 /classes/
 /core/assets/
