@@ -61,4 +61,10 @@
 			<xs:enumeration value="talksoundmale.wav"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="resourceGroupType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="common"/>
+			<xs:enumeration value="hello"/>
+		</xs:restriction>
+	</xs:simpleType>
 </xs:schema>

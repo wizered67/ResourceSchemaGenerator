@@ -1,5 +1,6 @@
 package com.wizered67.schemagenerator;
 
+import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlWriter;
 
 import java.io.*;
@@ -25,6 +26,7 @@ public class ResourceSchemaGenerator {
     private static final String MUSIC_TAG = "music";
     private static final String SOUNDS_TAG = "sounds";
     private static final String CHARACTERS_TAG = "characters";
+    private static final String GROUPS_TAG = "groups";
 
     private static final String ANIMATION_ATLAS_TYPE = "animationAtlasResource";
     private static final String ANIMATIONS_TYPE = "animationResource";
@@ -33,6 +35,7 @@ public class ResourceSchemaGenerator {
     private static final String SOUNDS_TYPE = "soundResource";
     private static final String CHARACTER_TYPE = "characterType";
     private static final String RESOURCE_TYPE = "resourceType";
+    private static final String GROUP_TYPE = "resourceGroupType";
 
     private static final String SIMPLE_TYPE = "xs:simpleType";
     private static final String RESTRICTION = "xs:restriction";
@@ -41,7 +44,7 @@ public class ResourceSchemaGenerator {
     private static final String UNION = "xs:union";
     private static final String ANY_TYPE = "anyType";
 
-    private static final Pattern RESOURCE_PATTERN = Pattern.compile("\\s*!?(.+)\\s+(.+)\\s*");
+    private static final Pattern RESOURCE_PATTERN = Pattern.compile("\\s*(.+)\\s+(.+)\\s*");
     private static XmlWriter xmlWriter;
 
     private static Set<String> identifiers = new HashSet<String>();
@@ -50,6 +53,12 @@ public class ResourceSchemaGenerator {
     public static void main(String[] args) {
         try {
             String destination = args[0];
+            String file = args[1];
+            if (!file.equals("Resources.xml")) {
+                System.out.println("file is not resources.xml");
+                return;
+            }
+            System.out.println("There must be 2 arguments, destination and input file.");
             InputStream xmlFile = new FileInputStream("Resources.xml");
             MixedXmlReader xmlReader = new MixedXmlReader();
             FileWriter writer = new FileWriter(destination, false);
@@ -64,6 +73,7 @@ public class ResourceSchemaGenerator {
             writeSounds(root);
             writeCharacters(root);
             writeResources();
+            writeGroups(root);
             writeEnd();
 
             xmlWriter.close();
@@ -142,7 +152,7 @@ public class ResourceSchemaGenerator {
     private static void writeMusic(Element root) {
         Map<String, String> resources = getResources(root, MUSIC_TAG);
         verifyResources(resources, MUSIC_DIRECTORY);
-        resources.put("", "");
+        resources.put("", ""); //add empty option for stopping music
         writeIdentifiers(MUSIC_TYPE, resources.keySet());
         System.out.println("Wrote music.");
     }
@@ -170,6 +180,20 @@ public class ResourceSchemaGenerator {
         }
         writeIdentifiers(CHARACTER_TYPE, identifiers);
         System.out.println("Wrote characters.");
+    }
+
+    private static void writeGroups(XmlReader.Element root) {
+        Element groups = root.getChildByName(GROUPS_TAG);
+        Set<String> groupNames = new HashSet<String>();
+        for (int c = 0; c < groups.getChildCount(); c += 1) {
+            Element group = groups.getChild(c);
+            String name = group.getAttribute("name");
+            if (groupNames.contains(name)) {
+                identifierError(name);
+            }
+            groupNames.add(name);
+        }
+        writeIdentifiers(GROUP_TYPE, groupNames);
     }
 
     private static void writeResources() {
@@ -203,9 +227,6 @@ public class ResourceSchemaGenerator {
                         identifier = matcher.group(1);
                         filename = matcher.group(2);
                     } else {
-                        if (line.startsWith("!")) {
-                            line = line.substring(1);
-                        }
                         identifier = line;
                         filename = line;
                     }
