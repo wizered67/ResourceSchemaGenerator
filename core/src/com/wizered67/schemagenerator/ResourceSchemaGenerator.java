@@ -20,6 +20,7 @@ public class ResourceSchemaGenerator {
     private static final String TEXTURES_DIRECTORY = "Textures";
     private static final String MUSIC_DIRECTORY = "Music";
     private static final String SOUNDS_DIRECTORY = "Sounds";
+    private static final String CONVERSATIONS_DIRECTORY = "Conversations";
 
     private static final String ANIMATIONS_TAG = "animation_files";
     private static final String TEXTURES_TAG = "textures";
@@ -36,6 +37,7 @@ public class ResourceSchemaGenerator {
     private static final String CHARACTER_TYPE = "characterType";
     private static final String RESOURCE_TYPE = "resourceType";
     private static final String GROUP_TYPE = "resourceGroupType";
+    private static final String CONVERSATIONS_TYPE = "conversationType";
 
     private static final String SIMPLE_TYPE = "xs:simpleType";
     private static final String RESTRICTION = "xs:restriction";
@@ -44,7 +46,7 @@ public class ResourceSchemaGenerator {
     private static final String UNION = "xs:union";
     private static final String ANY_TYPE = "anyType";
 
-    private static final Pattern RESOURCE_PATTERN = Pattern.compile("\\s*(.+)\\s+(.+)\\s*");
+    private static final Pattern RESOURCE_PATTERN = Pattern.compile("\\s*(.+)\\s+\"(.+)\"\\s*");
     private static XmlWriter xmlWriter;
 
     private static Set<String> identifiers = new HashSet<String>();
@@ -52,19 +54,14 @@ public class ResourceSchemaGenerator {
 
     public static void main(String[] args) {
         try {
-            String destination = args[0];
-            String file = args[1];
-            if (!file.equals("Resources.xml")) {
-                System.out.println("file is not resources.xml");
-                return;
-            }
-            System.out.println("There must be 2 arguments, destination and input file.");
             InputStream xmlFile = new FileInputStream("Resources.xml");
             MixedXmlReader xmlReader = new MixedXmlReader();
-            FileWriter writer = new FileWriter(destination, false);
-            xmlWriter = new XmlWriter(writer);
             Element root = xmlReader.parse(xmlFile);
             strict = root.getBooleanAttribute("strict", false);
+            String destination = root.getAttribute("dest", "resourceSchema.xsd");
+            FileWriter writer = new FileWriter(destination, false);
+            xmlWriter = new XmlWriter(writer);
+
             writeHeader();
             writeAny();
             writeAnimations(root);
@@ -72,6 +69,7 @@ public class ResourceSchemaGenerator {
             writeMusic(root);
             writeSounds(root);
             writeCharacters(root);
+            writeConversations();
             writeResources();
             writeGroups(root);
             writeEnd();
@@ -182,6 +180,18 @@ public class ResourceSchemaGenerator {
         System.out.println("Wrote characters.");
     }
 
+    private static void writeConversations() {
+        Set<String> fileNames = new HashSet<String>();
+        File directory = new File(CONVERSATIONS_DIRECTORY + "/");
+        File[] files = directory.listFiles();
+        for(File file: files) {
+            fileNames.add(file.getName());
+        }
+        writeIdentifiers(CONVERSATIONS_TYPE, fileNames);
+        verifyResources(fileNames, CONVERSATIONS_DIRECTORY);
+        System.out.println("Wrote conversations.");
+    }
+
     private static void writeGroups(XmlReader.Element root) {
         Element groups = root.getChildByName(GROUPS_TAG);
         Set<String> groupNames = new HashSet<String>();
@@ -194,12 +204,14 @@ public class ResourceSchemaGenerator {
             groupNames.add(name);
         }
         writeIdentifiers(GROUP_TYPE, groupNames);
+        System.out.println("Wrote groups.");
     }
 
     private static void writeResources() {
         writeIdentifiers(RESOURCE_TYPE, identifiers);
         System.out.println("Wrote resources.");
     }
+
 
     private static void writeEnd() {
         try {
@@ -227,6 +239,7 @@ public class ResourceSchemaGenerator {
                         identifier = matcher.group(1);
                         filename = matcher.group(2);
                     } else {
+                        line = line.replaceAll("\"", "");
                         identifier = line;
                         filename = line;
                     }
@@ -240,7 +253,7 @@ public class ResourceSchemaGenerator {
         return resources;
     }
 
-    private static void writeIdentifiers(String type, Set<String> identifiers) {
+    private static void writeIdentifiers(String type, Collection<String> identifiers) {
         try {
             simpleType(type);
                 if (!strict) {
@@ -270,6 +283,19 @@ public class ResourceSchemaGenerator {
             File file = new File(directory + "/" + filename);
             if (!file.exists()) {
                 System.err.println("Missing resource '" + directory + "/" + filename + "'.");
+            }
+        }
+    }
+
+    private static void verifyResources(Set<String> resources, String directory) {
+        for (String identifier : resources) {
+            if (identifiers.contains(identifier)) {
+                identifierError(identifier);
+            }
+            identifiers.add(identifier);
+            File file = new File(directory + "/" + identifier);
+            if (!file.exists()) {
+                System.err.println("Missing resource '" + directory + "/" + identifier + "'.");
             }
         }
     }

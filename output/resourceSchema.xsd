@@ -33,8 +33,9 @@
 	<xs:simpleType name="soundResource">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="test"/>
-			<xs:enumeration value="new sound for this"/>
+			<xs:enumeration value="othersound"/>
 			<xs:enumeration value="talksoundfemale.wav"/>
+			<xs:enumeration value="hello"/>
 			<xs:enumeration value="intense.wav"/>
 			<xs:enumeration value="talksoundmale.wav"/>
 		</xs:restriction>
@@ -46,19 +47,46 @@
 			<xs:enumeration value="Buddy"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="conversationType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="rpg.conv"/>
+			<xs:enumeration value="demonstrationLua.conv"/>
+			<xs:enumeration value="saveTest.conv"/>
+			<xs:enumeration value="demonstrationGroovy.conv"/>
+			<xs:enumeration value="testConversation3.conv"/>
+			<xs:enumeration value="mixedTest.conv"/>
+			<xs:enumeration value="testConversation2.conv"/>
+			<xs:enumeration value="output.xml"/>
+			<xs:enumeration value="testConversation4.conv"/>
+			<xs:enumeration value="demonstration.conv"/>
+			<xs:enumeration value="christine.conv"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="resourceType">
 		<xs:restriction base="xs:string">
+			<xs:enumeration value="rpg.conv"/>
 			<xs:enumeration value="new"/>
-			<xs:enumeration value="Edgeworth"/>
+			<xs:enumeration value="demonstrationLua.conv"/>
+			<xs:enumeration value="saveTest.conv"/>
 			<xs:enumeration value="test"/>
-			<xs:enumeration value="Test"/>
-			<xs:enumeration value="test4.png"/>
-			<xs:enumeration value="new sound for this"/>
+			<xs:enumeration value="othersound"/>
 			<xs:enumeration value="icon"/>
-			<xs:enumeration value="crossexamination.mp3"/>
-			<xs:enumeration value="talksoundfemale.wav"/>
+			<xs:enumeration value="mixedTest.conv"/>
+			<xs:enumeration value="output.xml"/>
+			<xs:enumeration value="testConversation4.conv"/>
 			<xs:enumeration value="intense.wav"/>
 			<xs:enumeration value="talksoundmale.wav"/>
+			<xs:enumeration value="Edgeworth"/>
+			<xs:enumeration value="Test"/>
+			<xs:enumeration value="test4.png"/>
+			<xs:enumeration value="demonstrationGroovy.conv"/>
+			<xs:enumeration value="testConversation3.conv"/>
+			<xs:enumeration value="crossexamination.mp3"/>
+			<xs:enumeration value="talksoundfemale.wav"/>
+			<xs:enumeration value="testConversation2.conv"/>
+			<xs:enumeration value="hello"/>
+			<xs:enumeration value="demonstration.conv"/>
+			<xs:enumeration value="christine.conv"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="resourceGroupType">
