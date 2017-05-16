@@ -15,7 +15,7 @@ public class Constants {
     public static final String RESOURCE_NAME_ATTRIBUTE = "name";
     public static final String RESOURCE_NAME_ATTRIBUTE_INTERNAL = "0" + RESOURCE_NAME_ATTRIBUTE;
     public static final String RESOURCE_IDENTIFIER_ATTRIBUTE = "identifier";
-
+    public static final String RESOURCE_IDENTIFIER_ATTRIBUTE_INTERNAL = "1" + RESOURCE_IDENTIFIER_ATTRIBUTE;
     public static final String ANIMATION_CLASS_NAME = "com.wizered67.game.assets.AnimationTextureAtlas";
     public static final String TEXTURES_CLASS_NAME = "com.badlogic.gdx.graphics.Texture";
     public static final String MUSIC_CLASS_NAME = "com.badlogic.gdx.audio.Music";

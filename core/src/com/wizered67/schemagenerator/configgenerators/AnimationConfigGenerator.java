@@ -1,6 +1,7 @@
 package com.wizered67.schemagenerator.configgenerators;
 
 import com.badlogic.gdx.utils.XmlReader;
+import com.wizered67.schemagenerator.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +25,12 @@ public class AnimationConfigGenerator implements SpecialConfigGenerator {
     public void generateConfig(XmlReader.Element newElement, String directory, String filename, String type) {
         if (!filename.endsWith(".pack")) {
             return;
+        }
+        String filenameWithoutExtension = filename.substring(0, filename.indexOf(".pack"));
+        if (newElement.getAttributes().containsKey(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE_INTERNAL)) {
+            newElement.setAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE_INTERNAL, filenameWithoutExtension);
+        } else {
+            newElement.setAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE, filenameWithoutExtension);
         }
         File file = new File(directory + "/" + filename);
         Set<String> animationNames = new HashSet<String>();
