@@ -14,7 +14,8 @@ import java.util.*;
 
 import static com.badlogic.gdx.utils.XmlReader.Element;
 /**
- * Created by Adam on 5/15/2017.
+ * Uses directory config to generate configurations for each subdirectory.
+ * @author Adam Victor
  */
 public class ConfigGenerator {
     private XmlReader xmlReader;

@@ -3,7 +3,8 @@ package com.wizered67.schemagenerator;
 import com.badlogic.gdx.utils.XmlReader;
 
 /**
- * Created by Adam on 5/15/2017.
+ * Runs the generator program, first generating new config and then generating schemas.
+ * @author Adam Victor
  */
 public class GeneratorMain {
     public static void main(String[] args) {
