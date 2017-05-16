@@ -16,19 +16,7 @@ import static com.badlogic.gdx.utils.XmlReader.Element;
  * @author Adam Victor
  */
 public class ResourceSchemaGenerator {
-    private static final String ANIMATIONS_DIRECTORY = "Animations";
-    private static final String TEXTURES_DIRECTORY = "Textures";
-    private static final String MUSIC_DIRECTORY = "Music";
-    private static final String SOUNDS_DIRECTORY = "Sounds";
-    private static final String CONVERSATIONS_DIRECTORY = "Conversations";
-
-    private static final String ANIMATIONS_TAG = "animation_files";
-    private static final String TEXTURES_TAG = "textures";
-    private static final String MUSIC_TAG = "music";
-    private static final String SOUNDS_TAG = "sounds";
-    private static final String CHARACTERS_TAG = "characters";
-    private static final String GROUPS_TAG = "groups";
-
+    /*
     private static final String ANIMATION_ATLAS_TYPE = "animationAtlasResource";
     private static final String ANIMATIONS_TYPE = "animationResource";
     private static final String TEXTURES_TYPE = "textureResource";
@@ -46,7 +34,6 @@ public class ResourceSchemaGenerator {
     private static final String UNION = "xs:union";
     private static final String ANY_TYPE = "anyType";
 
-    private static final Pattern RESOURCE_PATTERN = Pattern.compile("\\s*(.+)\\s+\"(.+)\"\\s*");
     private static XmlWriter xmlWriter;
 
     private static Set<String> identifiers = new HashSet<String>();
@@ -104,13 +91,6 @@ public class ResourceSchemaGenerator {
         }
     }
 
-    private static void writeAnimations(Element root) {
-        Map<String, String> resources = getResources(root, ANIMATIONS_TAG);
-        writeIdentifiers(ANIMATION_ATLAS_TYPE, resources.keySet());
-        verifyResources(resources, ANIMATIONS_DIRECTORY);
-        System.out.println("Wrote animation atlases.");
-        writeAnimationNames(resources);
-    }
 
     private static void writeAnimationNames(Map<String, String> resources) {
         Set<String> animationNames = new HashSet<String>();
@@ -140,28 +120,6 @@ public class ResourceSchemaGenerator {
         writeIdentifiers(ANIMATIONS_TYPE, animationNames);
     }
 
-    private static void writeTextures(Element root) {
-        Map<String, String> resources = getResources(root, TEXTURES_TAG);
-        writeIdentifiers(TEXTURES_TYPE, resources.keySet());
-        verifyResources(resources, TEXTURES_DIRECTORY);
-        System.out.println("Wrote backgrounds.");
-    }
-
-    private static void writeMusic(Element root) {
-        Map<String, String> resources = getResources(root, MUSIC_TAG);
-        verifyResources(resources, MUSIC_DIRECTORY);
-        resources.put("", ""); //add empty option for stopping music
-        writeIdentifiers(MUSIC_TYPE, resources.keySet());
-        System.out.println("Wrote music.");
-    }
-
-    private static void writeSounds(Element root) {
-        Map<String, String> resources = getResources(root, SOUNDS_TAG);
-        writeIdentifiers(SOUNDS_TYPE, resources.keySet());
-        verifyResources(resources, SOUNDS_DIRECTORY);
-        System.out.println("Wrote sounds.");
-    }
-
     private static void writeCharacters(Element root) {
         Element tags = root.getChildByName(CHARACTERS_TAG);
         Set<String> identifiers = new HashSet<String>();
@@ -180,39 +138,6 @@ public class ResourceSchemaGenerator {
         System.out.println("Wrote characters.");
     }
 
-    private static void writeConversations() {
-        Set<String> fileNames = new HashSet<String>();
-        File directory = new File(CONVERSATIONS_DIRECTORY + "/");
-        File[] files = directory.listFiles();
-        for(File file: files) {
-            fileNames.add(file.getName());
-        }
-        writeIdentifiers(CONVERSATIONS_TYPE, fileNames);
-        verifyResources(fileNames, CONVERSATIONS_DIRECTORY);
-        System.out.println("Wrote conversations.");
-    }
-
-    private static void writeGroups(XmlReader.Element root) {
-        Element groups = root.getChildByName(GROUPS_TAG);
-        Set<String> groupNames = new HashSet<String>();
-        for (int c = 0; c < groups.getChildCount(); c += 1) {
-            Element group = groups.getChild(c);
-            String name = group.getAttribute("name");
-            if (groupNames.contains(name)) {
-                identifierError(name);
-            }
-            groupNames.add(name);
-        }
-        writeIdentifiers(GROUP_TYPE, groupNames);
-        System.out.println("Wrote groups.");
-    }
-
-    private static void writeResources() {
-        writeIdentifiers(RESOURCE_TYPE, identifiers);
-        System.out.println("Wrote resources.");
-    }
-
-
     private static void writeEnd() {
         try {
             xmlWriter.pop();
@@ -220,37 +145,6 @@ public class ResourceSchemaGenerator {
         } catch (IOException io) {
             io.printStackTrace();
         }
-    }
-
-    private static Map<String, String> getResources(Element root, String type) {
-        Map<String, String> resources = new HashMap<String, String>();
-        Element files = root.getChildByName(type);
-        for (int i = 0; i < files.getChildCount(); i += 1) {
-            Element child = files.getChild(i);
-            if (child.getName().equals("text")) {
-                String text = child.getText();
-                text = text.replaceAll("\\r", "");
-                String[] lines = text.split("\\n");
-                for (String line : lines) {
-                    line = line.trim();
-                    Matcher matcher = RESOURCE_PATTERN.matcher(line);
-                    String identifier, filename;
-                    if (matcher.matches()) {
-                        identifier = matcher.group(1);
-                        filename = matcher.group(2);
-                    } else {
-                        line = line.replaceAll("\"", "");
-                        identifier = line;
-                        filename = line;
-                    }
-                    if (resources.containsKey(identifier)) {
-                        identifierError(identifier);
-                    }
-                    resources.put(identifier, filename);
-                }
-            }
-        }
-        return resources;
     }
 
     private static void writeIdentifiers(String type, Collection<String> identifiers) {
@@ -358,4 +252,5 @@ public class ResourceSchemaGenerator {
             io.printStackTrace();
         }
     }
+    */
 }
