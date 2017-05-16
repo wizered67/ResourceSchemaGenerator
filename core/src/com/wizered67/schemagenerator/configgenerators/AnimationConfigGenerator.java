@@ -33,28 +33,17 @@ public class AnimationConfigGenerator implements SpecialConfigGenerator {
             newElement.setAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE, filenameWithoutExtension);
         }
         File file = new File(directory + "/" + filename);
-        Set<String> animationNames = new HashSet<String>();
-        try {
-            Scanner scanner = new Scanner(file);
-            scanner.next(); //skip over filename
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine().trim();
-                if (line.indexOf(':') < 0 && !line.isEmpty()) { //no colon so it should be the name of an animation
-                    animationNames.add(line);
-                }
-            }
-            XmlReader.Element animationsElement = new XmlReader.Element(ANIMATIONS_TAG_NAME, newElement);
-            newElement.addChild(animationsElement);
-            animationsElement.setAttribute(FLIP_ATTRIBUTE_NAME, "false");
-            for (String animationName : animationNames) {
-                XmlReader.Element subElement = new XmlReader.Element(ANIMATION_SUB_TAG_NAME, animationsElement);
-                subElement.setAttribute(ID_ATTRIBUTE_NAME, animationName);
-                subElement.setAttribute(FRAME_DURATION_ATTRIBUTE_NAME, "1");
-                subElement.setAttribute(PLAYMODE_ATTRIBUTE_NAME, DEFAULT_PLAYMODE);
-                animationsElement.addChild(subElement);
-            }
-        } catch (IOException io) {
-            io.printStackTrace();
+        Set<String> animationNames = Constants.getGroupsFromTextureAtlas(file);
+        XmlReader.Element animationsElement = new XmlReader.Element(ANIMATIONS_TAG_NAME, newElement);
+        newElement.addChild(animationsElement);
+        animationsElement.setAttribute(FLIP_ATTRIBUTE_NAME, "false");
+
+        for (String animationName : animationNames) {
+            XmlReader.Element subElement = new XmlReader.Element(ANIMATION_SUB_TAG_NAME, animationsElement);
+            subElement.setAttribute(ID_ATTRIBUTE_NAME, animationName);
+            subElement.setAttribute(FRAME_DURATION_ATTRIBUTE_NAME, "1");
+            subElement.setAttribute(PLAYMODE_ATTRIBUTE_NAME, DEFAULT_PLAYMODE);
+            animationsElement.addChild(subElement);
         }
     }
 }

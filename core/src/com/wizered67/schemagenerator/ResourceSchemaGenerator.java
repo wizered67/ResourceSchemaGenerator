@@ -18,8 +18,7 @@ import static com.badlogic.gdx.utils.XmlReader.Element;
 public class ResourceSchemaGenerator {
 
     //private static final String ANIMATION_ATLAS_TYPE = "animationAtlasResource";
-    private static final String ANIMATIONS_TYPE = "animationResource";
-    private static final String TEXTURES_TYPE = "textureResource";
+    private static final String GRAPHIC_TYPE = "graphicResource";
     private static final String MUSIC_TYPE = "musicResource";
     private static final String SOUNDS_TYPE = "soundResource";
     private static final String CHARACTER_TYPE = "characterType";
@@ -40,14 +39,29 @@ public class ResourceSchemaGenerator {
     private boolean strict = true;
 
     private Set<String> identifiers;
+    private Map<String, SpecialSchemaGenerator> specialSchemaGenerators;
     private Map<String, Set<String>> categorizedIdentifiers;
+    private Map<String, String> typeToResourceType;
     private Set<String> loadSet;
 
     public ResourceSchemaGenerator(XmlReader xmlReader) {
         this.xmlReader = xmlReader;
         identifiers = new HashSet<String>();
         categorizedIdentifiers = new HashMap<String, Set<String>>();
+        categorizedIdentifiers.put(GRAPHIC_TYPE, new HashSet<String>());
+        categorizedIdentifiers.put(SOUNDS_TYPE, new HashSet<String>());
+        categorizedIdentifiers.put(MUSIC_TYPE, new HashSet<String>());
+        categorizedIdentifiers.put(CHARACTER_TYPE, new HashSet<String>());
+        categorizedIdentifiers.put(CONVERSATIONS_TYPE, new HashSet<String>());
+        categorizedIdentifiers.put(GROUP_TYPE, new HashSet<String>());
         loadSet = new HashSet<String>();
+        typeToResourceType = new HashMap<String, String>();
+        typeToResourceType.put(Constants.TEXTURE_CLASS_NAME, GRAPHIC_TYPE);
+        typeToResourceType.put(Constants.SOUND_CLASS_NAME, SOUNDS_TYPE);
+        typeToResourceType.put(Constants.MUSIC_CLASS_NAME, MUSIC_TYPE);
+        typeToResourceType.put(Constants.CONVERSATION_CLASS_NAME, CONVERSATIONS_TYPE);
+
+        initializeSpecialGenerators();
     }
 
     public void generate() {
@@ -83,6 +97,41 @@ public class ResourceSchemaGenerator {
 
     }
 
+    private void collectResources(Element resourcesRoot) {
+        for (int i = 0; i < resourcesRoot.getChildCount(); i++) {
+            Element directoryElement = resourcesRoot.getChild(i);
+            String directory = directoryElement.getAttribute("name");
+            String type = directoryElement.getAttribute("type");
+            collectResourcesFromDirectory(directory, type);
+        }
+    }
+
+    private void collectResourcesFromDirectory(String directory, String type) {
+        try {
+            Element directoryResourcesRoot = xmlReader.parse(new FileInputStream(new File(directory, Constants.RESOURCE_CONFIG_XML)));
+            for (int i = 0; i < directoryResourcesRoot.getChildCount(); i++) {
+                Element resourceElement = directoryResourcesRoot.getChild(i);
+                if (specialSchemaGenerators.containsKey(type)) {
+                    specialSchemaGenerators.get(type).generate(identifiers, loadSet, categorizedIdentifiers,
+                            type, resourceElement, directory);
+                } else {
+                    String identifier = resourceElement.getAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE);
+                    if (identifiers.contains(identifier)) {
+                        identifierError(identifier);
+                    }
+                    identifiers.add(identifier);
+                    loadSet.add(identifier);
+                    if (typeToResourceType.containsKey(type)) {
+                        categorizedIdentifiers.get(typeToResourceType.get(type)).add(identifier);
+                    }
+                }
+            }
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+
+    }
+
     private void collectCharacters() {
         try {
             FileInputStream fileInputStream = new FileInputStream(new File(Constants.CHARACTERS_FILE));
@@ -111,11 +160,11 @@ public class ResourceSchemaGenerator {
             Element loadRoot = xmlReader.parse(fileInputStream);
             Set<String> identifiers = new HashSet<String>();
             for (int c = 0; c < loadRoot.getChildCount(); c += 1) {
-                Element character = loadRoot.getChild(c);
-                if (!character.getName().equals("load")) {
+                Element load = loadRoot.getChild(c);
+                if (!load.getName().equals("group")) {
                     System.err.println("Invalid element in loading groups group.");
                 }
-                String id = character.getAttribute("name");
+                String id = load.getAttribute("name");
                 if (identifiers.contains(id)) {
                     identifierError(id);
                 }
@@ -237,6 +286,58 @@ public class ResourceSchemaGenerator {
         } catch (IOException io) {
             io.printStackTrace();
         }
+    }
+
+    private void initializeSpecialGenerators() {
+        specialSchemaGenerators = new HashMap<String, SpecialSchemaGenerator>();
+        specialSchemaGenerators.put(Constants.ANIMATION_CLASS_NAME, new SpecialSchemaGenerator() {
+            @Override
+            public void generate(Set<String> identifiers, Set<String> loadSet, Map<String, Set<String>> categorizedIdentifiers,
+                                 String type, Element resourceElement, String directory) {
+                String atlasIdentifier = resourceElement.getAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE);
+                if (identifiers.contains(atlasIdentifier)) {
+                    identifierError(atlasIdentifier);
+                }
+                identifiers.add(atlasIdentifier);
+                loadSet.add(atlasIdentifier);
+                Set<String> animationIdentifiers = new HashSet<String>();
+                Element animationsElement = resourceElement.getChild(0);
+                for (int i = 0; i < animationsElement.getChildCount(); i++) {
+                    Element animationElement = animationsElement.getChild(i);
+                    String animationId = animationElement.getAttribute("id");
+                    String fullName = atlasIdentifier + "_" + animationId;
+                    if (identifiers.contains(fullName)) {
+                        identifierError(fullName);
+                    }
+                    identifiers.add(fullName);
+                    animationIdentifiers.add(fullName);
+                }
+                categorizedIdentifiers.get(GRAPHIC_TYPE).addAll(animationIdentifiers);
+            }
+        });
+
+        specialSchemaGenerators.put(Constants.TEXTURE_ATLAS_CLASS_NAME, new SpecialSchemaGenerator() {
+            @Override
+            public void generate(Set<String> identifiers, Set<String> loadSet, Map<String, Set<String>> categorizedIdentifiers,
+                                 String type, Element resourceElement, String directory) {
+                String atlasIdentifier = resourceElement.getAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE);
+                File atlasFile = new File(directory, resourceElement.getAttribute(Constants.RESOURCE_NAME_ATTRIBUTE));
+                Set<String> groupNames = Constants.getGroupsFromTextureAtlas(atlasFile);
+                if (identifiers.contains(atlasIdentifier)) {
+                    identifierError(atlasIdentifier);
+                }
+                identifiers.add(atlasIdentifier);
+                loadSet.add(atlasIdentifier);
+                for (String group : groupNames) {
+                    String fullName = atlasIdentifier + "_" + group;
+                    if (identifiers.contains(fullName)) {
+                        identifierError(fullName);
+                    }
+                    identifiers.add(fullName);
+                    categorizedIdentifiers.get(GRAPHIC_TYPE).add(fullName);
+                }
+            }
+        });
     }
 
 }

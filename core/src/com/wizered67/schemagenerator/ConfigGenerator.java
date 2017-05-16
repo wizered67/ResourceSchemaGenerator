@@ -4,10 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlWriter;
-import com.wizered67.schemagenerator.configgenerators.AnimationConfigGenerator;
-import com.wizered67.schemagenerator.configgenerators.MusicConfigGenerator;
-import com.wizered67.schemagenerator.configgenerators.SpecialConfigGenerator;
-import com.wizered67.schemagenerator.configgenerators.TextureConfigGenerator;
+import com.wizered67.schemagenerator.configgenerators.*;
 
 import java.io.*;
 import java.util.*;
@@ -25,8 +22,9 @@ public class ConfigGenerator {
         this.xmlReader = xmlReader;
         specialConfigGenerators = new HashMap<String, SpecialConfigGenerator>();
         specialConfigGenerators.put(Constants.ANIMATION_CLASS_NAME, new AnimationConfigGenerator());
-        specialConfigGenerators.put(Constants.TEXTURES_CLASS_NAME, new TextureConfigGenerator());
+        specialConfigGenerators.put(Constants.TEXTURE_CLASS_NAME, new TextureConfigGenerator());
         specialConfigGenerators.put(Constants.MUSIC_CLASS_NAME, new MusicConfigGenerator());
+        specialConfigGenerators.put(Constants.TEXTURE_ATLAS_CLASS_NAME, new TextureAtlasConfigGenerator());
     }
 
     public void generateAll() {

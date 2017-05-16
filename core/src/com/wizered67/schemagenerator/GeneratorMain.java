@@ -11,5 +11,7 @@ public class GeneratorMain {
         XmlReader xmlReader = new XmlReader();
         ConfigGenerator configGenerator = new ConfigGenerator(xmlReader);
         configGenerator.generateAll();
+        ResourceSchemaGenerator resourceSchemaGenerator = new ResourceSchemaGenerator(xmlReader);
+        resourceSchemaGenerator.generate();
     }
 }
