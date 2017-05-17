@@ -1,5 +1,6 @@
 package com.wizered67.schemagenerator.configgenerators;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.XmlReader;
 import com.wizered67.schemagenerator.ConfigGenerator;
 

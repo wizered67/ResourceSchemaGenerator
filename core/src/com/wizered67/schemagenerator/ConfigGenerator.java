@@ -41,7 +41,8 @@ public class ConfigGenerator {
         }
     }
 
-    public void generateAll() {
+    public void generateAll() throws FileNotFoundException {
+        generateSpecialFiles();
         try {
             Element resourceDirectoriesRoot = xmlReader.parse(new FileInputStream(new File(Constants.RESOURCE_DIRECTORIES_FILE)));
             for (int i = 0; i < resourceDirectoriesRoot.getChildCount(); i++) {
@@ -63,6 +64,73 @@ public class ConfigGenerator {
         System.out.println("Config generated successfully.");
     }
 
+    private void generateSpecialFiles() throws FileNotFoundException {
+        boolean shouldThrowException = false;
+        File file = new File(Constants.RESOURCE_DIRECTORIES_FILE);
+        if (!file.exists()) {
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                XmlWriter xmlWriter = new XmlWriter(fileWriter);
+
+                xmlWriter.element("directories");
+                xmlWriter.attribute("xmlns", Constants.RESOURCE_CONFIG_SCHEMA);
+                    xmlWriter.element("directory");
+                    xmlWriter.attribute(Constants.DIRECTORY_NAME_ATTRIBUTE, "");
+                    xmlWriter.attribute(Constants.DIRECTORY_TYPE_ATTRIBUTE, "");
+                    xmlWriter.pop();
+                xmlWriter.pop();
+                fileWriter.close();
+                shouldThrowException = true;
+
+            } catch (IOException io) {
+                io.printStackTrace();
+            }
+        }
+
+        file = new File(Constants.CHARACTERS_FILE);
+        if (!file.exists()) {
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                XmlWriter xmlWriter = new XmlWriter(fileWriter);
+
+                xmlWriter.element("characters");
+                xmlWriter.attribute("xmlns", Constants.RESOURCE_CONFIG_SCHEMA);
+                    xmlWriter.element("character");
+                    xmlWriter.attribute("id", "");
+                    xmlWriter.attribute("name", "");
+                    xmlWriter.attribute("sound", "");
+                    xmlWriter.pop();
+                xmlWriter.pop();
+                fileWriter.close();
+            } catch (IOException io) {
+                io.printStackTrace();
+            }
+        }
+
+        file = new File(Constants.LOADING_FILE);
+        if (!file.exists()) {
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                XmlWriter xmlWriter = new XmlWriter(fileWriter);
+
+                xmlWriter.element("groups");
+                xmlWriter.attribute("xmlns", Constants.RESOURCE_CONFIG_SCHEMA);
+                    xmlWriter.element("group");
+                    xmlWriter.attribute("name", "");
+                        xmlWriter.element("load", "");
+                    xmlWriter.pop();
+                xmlWriter.pop();
+                fileWriter.close();
+            } catch (IOException io) {
+                io.printStackTrace();
+            }
+        }
+
+        if (shouldThrowException) {
+            throw new FileNotFoundException("Directories file did not exist. Created a new one.");
+        }
+    }
+
     private void generateDirectoryConfig(String directoryName, String type, Set<String> excludeSet) {
         File directoryFile = new File(directoryName);
         //Get current config root and iterate through child resources, adding each one to a map between filename and config Element.
@@ -73,6 +141,7 @@ public class ConfigGenerator {
             currentConfigRoot = new Element(Constants.RESOURCE_CONFIG_ROOT_NAME, null);
         }
         Element newConfigRoot = new Element(Constants.RESOURCE_CONFIG_ROOT_NAME, null);
+        newConfigRoot.setAttribute("xmlns", Constants.RESOURCE_CONFIG_SCHEMA);
         Map<String, Element> currentConfigElements = new HashMap<String, Element>();
         if (currentConfigRoot != null) {
             for (int i = 0; i < currentConfigRoot.getChildCount(); i++) {
@@ -115,7 +184,7 @@ public class ConfigGenerator {
         xmlWriter = new XmlWriter(stringWriter);
         writeElement(xmlWriter, newConfigRoot);
         try {
-            System.out.println(stringWriter.toString());
+           // System.out.println(stringWriter.toString());
             FileWriter fileWriter = new FileWriter(new File(directoryFile, Constants.RESOURCE_CONFIG_XML));
             fileWriter.write(stringWriter.toString());
             fileWriter.close();

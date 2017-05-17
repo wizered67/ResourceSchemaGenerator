@@ -126,6 +126,7 @@ public class ResourceSchemaGenerator {
                     }
                 }
             }
+            System.out.println("Collected resources from " + directory + " directory.");
         } catch (IOException io) {
             io.printStackTrace();
         }
@@ -149,6 +150,7 @@ public class ResourceSchemaGenerator {
                 identifiers.add(id);
             }
             categorizedIdentifiers.put(CHARACTER_TYPE, identifiers);
+            System.out.println("Collected characters.");
         } catch (IOException io) {
             io.printStackTrace();
         }
@@ -171,6 +173,7 @@ public class ResourceSchemaGenerator {
                 identifiers.add(id);
             }
             categorizedIdentifiers.put(GROUP_TYPE, identifiers);
+            System.out.println("Collected load groups.");
         } catch (IOException io) {
             io.printStackTrace();
         }
@@ -182,7 +185,7 @@ public class ResourceSchemaGenerator {
                     .attribute("attributeFormDefault", "unqualified")
                     .attribute("elementFormDefault", "qualified")
                     .attribute("xmlns:xs", "http://www.w3.org/2001/XMLSchema");
-            System.out.println("Wrote header.");
+            //System.out.println("Wrote header.");
         } catch (IOException io) {
             io.printStackTrace();
         }
@@ -194,7 +197,7 @@ public class ResourceSchemaGenerator {
             restriction(STRING);
             xmlWriter.pop();
             xmlWriter.pop();
-            System.out.println("Wrote 'any' type.");
+            //System.out.println("Wrote 'any' type.");
         } catch (IOException io) {
             io.printStackTrace();
         }
@@ -224,6 +227,7 @@ public class ResourceSchemaGenerator {
                     xmlWriter.pop();
                 xmlWriter.pop(); }
             xmlWriter.pop();
+            System.out.println("Wrote identifiers for " + type);
         } catch (IOException io) {
             io.printStackTrace();
         }
