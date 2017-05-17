@@ -18,13 +18,27 @@ public class ConfigGenerator {
     private XmlReader xmlReader;
     private Map<String, SpecialConfigGenerator> specialConfigGenerators;
 
+    private Map<String, Map<String, Integer>> elementToAttributesPriority;
+
+    private static final String EXCLUSION_ELEMENT_NAME = "exclude";
+
     public ConfigGenerator(XmlReader xmlReader) {
         this.xmlReader = xmlReader;
+        elementToAttributesPriority = new HashMap<String, Map<String, Integer>>();
         specialConfigGenerators = new HashMap<String, SpecialConfigGenerator>();
-        specialConfigGenerators.put(Constants.ANIMATION_CLASS_NAME, new AnimationConfigGenerator());
-        specialConfigGenerators.put(Constants.TEXTURE_CLASS_NAME, new TextureConfigGenerator());
+        specialConfigGenerators.put(Constants.ANIMATION_CLASS_NAME, new AnimationConfigGenerator(this));
+        specialConfigGenerators.put(Constants.TEXTURE_CLASS_NAME, new TextureConfigGenerator(this));
         specialConfigGenerators.put(Constants.MUSIC_CLASS_NAME, new MusicConfigGenerator());
         specialConfigGenerators.put(Constants.TEXTURE_ATLAS_CLASS_NAME, new TextureAtlasConfigGenerator());
+        makeElementPriorityMap(Constants.RESOURCE_ELEMENT_NAME, Constants.RESOURCE_ATTRIBUTE_PRIORITY);
+    }
+
+    public void makeElementPriorityMap(String element, String[] attributeOrdering) {
+        HashMap<String, Integer> orderingMap = new HashMap<String, Integer>();
+        elementToAttributesPriority.put(element, orderingMap);
+        for (int i = 0; i < attributeOrdering.length; i++) {
+            orderingMap.put(attributeOrdering[i], i);
+        }
     }
 
     public void generateAll() {
@@ -33,11 +47,13 @@ public class ConfigGenerator {
             for (int i = 0; i < resourceDirectoriesRoot.getChildCount(); i++) {
                 Set<String> excludeSet = new HashSet<String>();
                 Element directory = resourceDirectoriesRoot.getChild(i);
-                String name = directory.getAttribute("name");
-                String type = directory.getAttribute("type");
+                String name = directory.getAttribute(Constants.DIRECTORY_NAME_ATTRIBUTE);
+                String type = directory.getAttribute(Constants.DIRECTORY_TYPE_ATTRIBUTE);
                 for (int j = 0; j < directory.getChildCount(); j++) {
                     Element exclusion = directory.getChild(j);
-                    excludeSet.add(exclusion.getText());
+                    if (exclusion.getName().equals(EXCLUSION_ELEMENT_NAME)) {
+                        excludeSet.add(exclusion.getText());
+                    }
                 }
                 generateDirectoryConfig(name, type, excludeSet);
             }
@@ -85,18 +101,8 @@ public class ConfigGenerator {
         Collections.sort(newConfigElements, new Comparator<Element>() {
             @Override
             public int compare(Element o1, Element o2) {
-                String name1;
-                String name2;
-                if (o1.getAttributes().containsKey(Constants.RESOURCE_NAME_ATTRIBUTE)) {
-                    name1 = o1.getAttribute(Constants.RESOURCE_NAME_ATTRIBUTE);
-                } else {
-                    name1 = o1.getAttribute(Constants.RESOURCE_NAME_ATTRIBUTE_INTERNAL);
-                }
-                if (o2.getAttributes().containsKey(Constants.RESOURCE_NAME_ATTRIBUTE)) {
-                    name2 = o2.getAttribute(Constants.RESOURCE_NAME_ATTRIBUTE);
-                } else {
-                    name2 = o2.getAttribute(Constants.RESOURCE_NAME_ATTRIBUTE_INTERNAL);
-                }
+                String name1 = o1.getAttribute(Constants.RESOURCE_NAME_ATTRIBUTE);
+                String name2 = o2.getAttribute(Constants.RESOURCE_NAME_ATTRIBUTE);
                 return name1.compareTo(name2);
             }
         });
@@ -130,8 +136,8 @@ public class ConfigGenerator {
 
     private Element generateConfigElement(String directoryName, String type, String fileName, Element newConfigRoot) {
         Element newElement = new Element(Constants.RESOURCE_ELEMENT_NAME, newConfigRoot);
-        newElement.setAttribute("0" + Constants.RESOURCE_NAME_ATTRIBUTE, fileName);
-        newElement.setAttribute("1" + Constants.RESOURCE_IDENTIFIER_ATTRIBUTE, fileName);
+        newElement.setAttribute(Constants.RESOURCE_NAME_ATTRIBUTE, fileName);
+        newElement.setAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE, fileName);
         //add special sub elements for type
         if (specialConfigGenerators.containsKey(type)) {
             specialConfigGenerators.get(type).generateConfig(newElement, directoryName, fileName, type);
@@ -139,7 +145,15 @@ public class ConfigGenerator {
         return newElement;
     }
 
-    private void writeElement(XmlWriter xmlWriter, Element element) {
+    private int getAttributePriority(String elementName, String attributeName) {
+        if (elementToAttributesPriority.containsKey(elementName)) {
+            return elementToAttributesPriority.get(elementName).get(attributeName);
+        } else {
+            return 9;
+        }
+    }
+
+    private void writeElement(XmlWriter xmlWriter, final Element element) {
         try {
             xmlWriter.element(element.getName());
             if (element.getText() != null && !element.getText().isEmpty()) {
@@ -151,15 +165,17 @@ public class ConfigGenerator {
                 keysArray.sort(new Comparator<String>() {
                     @Override
                     public int compare(String o1, String o2) {
-                        return o1.compareTo(o2);
+                        int priorityOne = getAttributePriority(element.getName(), o1);
+                        int priorityTwo = getAttributePriority(element.getName(), o2);
+                        if (priorityOne == priorityTwo) {
+                            return o1.compareTo(o2);
+                        } else {
+                            return (priorityOne < priorityTwo) ? -1 : 1;
+                        }
                     }
                 });
                 for (String attributeName : keysArray) {
-                    String writeAttributeName = attributeName;
-                    if (Character.isDigit(attributeName.charAt(0))) {
-                        writeAttributeName = attributeName.substring(1);
-                    }
-                    xmlWriter.attribute(writeAttributeName, element.getAttribute(attributeName));
+                    xmlWriter.attribute(attributeName, element.getAttribute(attributeName));
                 }
             }
             for (int i = 0; i < element.getChildCount(); i++) {

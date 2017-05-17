@@ -100,8 +100,8 @@ public class ResourceSchemaGenerator {
     private void collectResources(Element resourcesRoot) {
         for (int i = 0; i < resourcesRoot.getChildCount(); i++) {
             Element directoryElement = resourcesRoot.getChild(i);
-            String directory = directoryElement.getAttribute("name");
-            String type = directoryElement.getAttribute("type");
+            String directory = directoryElement.getAttribute(Constants.DIRECTORY_NAME_ATTRIBUTE);
+            String type = directoryElement.getAttribute(Constants.DIRECTORY_TYPE_ATTRIBUTE);
             collectResourcesFromDirectory(directory, type);
         }
     }

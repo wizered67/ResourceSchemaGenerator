@@ -14,10 +14,6 @@ public class TextureAtlasConfigGenerator implements SpecialConfigGenerator {
             return;
         }
         String filenameWithoutExtension = filename.substring(0, filename.indexOf(".pack"));
-        if (newElement.getAttributes().containsKey(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE_INTERNAL)) {
-            newElement.setAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE_INTERNAL, filenameWithoutExtension);
-        } else {
-            newElement.setAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE, filenameWithoutExtension);
-        }
+        newElement.setAttribute(Constants.RESOURCE_IDENTIFIER_ATTRIBUTE, filenameWithoutExtension);
     }
 }
