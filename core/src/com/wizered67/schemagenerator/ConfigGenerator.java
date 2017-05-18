@@ -202,6 +202,9 @@ public class ConfigGenerator {
             backupDirFile.mkdirs();
         }
         File originalFile = new File(directory, filename);
+        if (!originalFile.exists()) {
+            return;
+        }
         File backupFile = new File(backupDirFile, filename);
         try {
             InputStream in = new FileInputStream(originalFile);
