@@ -11,6 +11,9 @@ import java.util.Set;
  * @author Adam Victor
  */
 public class Constants {
+
+    public static final String BACKUP_DIRECTORY = "backups";
+
     public static final String RESOURCE_CONFIG_SCHEMA = "urn:resourceConfig";
     public static final String RESOURCE_CONFIG_XML = "Resources.xml";
     public static final String RESOURCE_DIRECTORIES_FILE = "ResourceDirectories.xml";

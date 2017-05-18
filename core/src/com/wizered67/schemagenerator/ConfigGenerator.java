@@ -178,10 +178,12 @@ public class ConfigGenerator {
         for (Element element : newConfigElements) {
             newConfigRoot.addChild(element);
         }
-        XmlWriter xmlWriter;
-        //Get XmlWriter to use for writing config file in directory.
+
+        createBackup(directoryName, Constants.RESOURCE_CONFIG_XML);
+
+        //Get XmlWriter to use for writing config file in directory. First write to StringWriter to make sure errors don't wipe a file.
         StringWriter stringWriter = new StringWriter();
-        xmlWriter = new XmlWriter(stringWriter);
+        XmlWriter xmlWriter = new XmlWriter(stringWriter);
         writeElement(xmlWriter, newConfigRoot);
         try {
            // System.out.println(stringWriter.toString());
@@ -191,6 +193,30 @@ public class ConfigGenerator {
         } catch (IOException io) {
             io.printStackTrace();
             return;
+        }
+    }
+
+    private void createBackup(String directory, String filename) {
+        File backupDirFile = new File(Constants.BACKUP_DIRECTORY, directory);
+        if (!backupDirFile.exists() || !backupDirFile.isDirectory()) {
+            backupDirFile.mkdirs();
+        }
+        File originalFile = new File(directory, filename);
+        File backupFile = new File(backupDirFile, filename);
+        try {
+            InputStream in = new FileInputStream(originalFile);
+            OutputStream out = new FileOutputStream(backupFile);
+
+            // Copy the bits from instream to outstream
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        } catch (IOException io) {
+            io.printStackTrace();
         }
     }
 
